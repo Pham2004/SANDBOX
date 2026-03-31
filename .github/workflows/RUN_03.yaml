@@ -1,4 +1,4 @@
-name: RUN EXPERIMENT 02
+name: RUN EXPERIMENT 03
 
 on:
   workflow_dispatch:
@@ -18,10 +18,10 @@ on:
         description: "Framework to use"
         type: choice
         required: true
-        default: ea_bot
+        default: mcts_bot
         options:
-          - ea_bot
-          - ea_top
+          - mcts_bot
+          - mcts_top
       model:
         description: "LLM model to use"
         type: choice
