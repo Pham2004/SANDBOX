@@ -12,17 +12,12 @@ on:
           - gpt-4o-mini
           - gpt-5-nano
 
-env:
-  PROBLEM: const_tsp
-  FRAMEWORK: ea_top
-  METHOD: reevo_td
-
 jobs:
   # ============================================================
   # Job 1: Checkout private repo → Run AHD experiment
   # ============================================================
   run_experiment:
-    name: RUN | ${{ env.PROBLEM }} | ${{ env.FRAMEWORK }}
+    name: RUN | const_tsp | ea_top
     runs-on: ubuntu-latest
 
     steps:
@@ -49,14 +44,14 @@ jobs:
         run: |
           python main.py \
             llm.model=${{ github.event.inputs.model }} \
-            problem=${{ env.PROBLEM }} \
-            framework=${{ env.FRAMEWORK }}
+            problem=const_tsp \
+            framework=ea_top
 
       - name: UPLOAD RESULTS
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: results-${{ env.PROBLEM }}-${{ env.METHOD }}-${{ github.run_id }}
+          name: results-const_tsp-reevo_td-${{ github.run_id }}
           path: results/
           retention-days: 30
 
@@ -95,21 +90,21 @@ jobs:
       - name: DOWNLOAD RESULTS
         uses: actions/download-artifact@v4
         with:
-          name: results-${{ env.PROBLEM }}-${{ env.METHOD }}-${{ github.run_id }}
+          name: results-const_tsp-reevo_td-${{ github.run_id }}
           path: results/
 
       - name: FIND AND COPY func_best.py
         run: |
-          BEST=$(find results/${{ env.PROBLEM }}/ -name "func_best.py" -type f | head -1)
+          BEST=$(find results/const_tsp/ -name "func_best.py" -type f | head -1)
           if [ -z "$BEST" ]; then
-            echo "ERROR: func_best.py not found in results/${{ env.PROBLEM }}/"
+            echo "ERROR: func_best.py not found in results/const_tsp/"
             find results/ -name "*.py" -type f
             exit 1
           fi
           echo "Found: $BEST"
-          cp "$BEST" problems/${{ env.PROBLEM }}/func_best.py
+          cp "$BEST" problems/const_tsp/func_best.py
           echo "--- func_best.py ---"
-          cat problems/${{ env.PROBLEM }}/func_best.py
+          cat problems/const_tsp/func_best.py
 
       - name: DOWNLOAD TSPLIB DATA
         run: python download_tsplib.py
@@ -117,10 +112,10 @@ jobs:
       - name: PATCH run_tsplib.py FOR RELATIVE PATH
         run: |
           sed -i 's|Path("f:/BRIDGE/tsplib_data")|Path("tsplib_data")|g' \
-            problems/${{ env.PROBLEM }}/run_tsplib.py
+            problems/const_tsp/run_tsplib.py
 
       - name: RUN TSPLIB (bucket=${{ matrix.bucket }})
         run: |
-          python problems/${{ env.PROBLEM }}/run_tsplib.py \
+          python problems/const_tsp/run_tsplib.py \
             --module func_best.py \
             --bucket ${{ matrix.bucket }}
