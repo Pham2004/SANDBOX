@@ -1,4 +1,4 @@
-name: RUN TSPLIB | const_tsp | MCTS_TD
+name: RUN TSPLIB | const_tsp | Dual (dual_ea)
 
 on:
   workflow_dispatch:
@@ -17,7 +17,7 @@ jobs:
   # Job 1: Checkout private repo → Run AHD experiment
   # ============================================================
   run_experiment:
-    name: RUN | const_tsp | mcts_top
+    name: RUN | const_tsp | dual_ea
     runs-on: ubuntu-latest
 
     steps:
@@ -45,13 +45,13 @@ jobs:
           python main.py \
             llm.model=${{ github.event.inputs.model }} \
             problem=const_tsp \
-            framework=mcts_top
+            framework=dual_ea
 
       - name: UPLOAD RESULTS
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: results-const_tsp-mcts_td-${{ github.run_id }}
+          name: results-const_tsp-dual_ea-${{ github.run_id }}
           path: results/
           retention-days: 30
 
@@ -90,7 +90,7 @@ jobs:
       - name: DOWNLOAD RESULTS
         uses: actions/download-artifact@v4
         with:
-          name: results-const_tsp-mcts_td-${{ github.run_id }}
+          name: results-const_tsp-dual_ea-${{ github.run_id }}
           path: results/
 
       - name: FIND AND COPY func_best.py

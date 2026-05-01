@@ -1,8 +1,16 @@
-name: RUN TSPLIB | const_tsp | REEVO_DUAL
+name: RUN TSPLIB | const_tsp | MCTS (mcts_bot / mcts_top)
 
 on:
   workflow_dispatch:
     inputs:
+      framework:
+        description: "Framework to use"
+        type: choice
+        required: true
+        default: mcts_bot
+        options:
+          - mcts_bot
+          - mcts_top
       model:
         description: "LLM model to use"
         type: choice
@@ -17,7 +25,7 @@ jobs:
   # Job 1: Checkout private repo → Run AHD experiment
   # ============================================================
   run_experiment:
-    name: RUN | const_tsp | dual_ea
+    name: RUN | const_tsp | ${{ github.event.inputs.framework }}
     runs-on: ubuntu-latest
 
     steps:
@@ -45,13 +53,13 @@ jobs:
           python main.py \
             llm.model=${{ github.event.inputs.model }} \
             problem=const_tsp \
-            framework=dual_ea
+            framework=${{ github.event.inputs.framework }}
 
       - name: UPLOAD RESULTS
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: results-const_tsp-reevo_dual-${{ github.run_id }}
+          name: results-const_tsp-${{ github.event.inputs.framework }}-${{ github.run_id }}
           path: results/
           retention-days: 30
 
@@ -90,7 +98,7 @@ jobs:
       - name: DOWNLOAD RESULTS
         uses: actions/download-artifact@v4
         with:
-          name: results-const_tsp-reevo_dual-${{ github.run_id }}
+          name: results-const_tsp-${{ github.event.inputs.framework }}-${{ github.run_id }}
           path: results/
 
       - name: FIND AND COPY func_best.py
