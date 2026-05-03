@@ -115,6 +115,8 @@ jobs:
           cat problems/const_tsp/func_best.py
 
       - name: DOWNLOAD TSPLIB DATA
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python download_tsplib.py
 
       - name: PATCH run_tsplib.py FOR RELATIVE PATH
